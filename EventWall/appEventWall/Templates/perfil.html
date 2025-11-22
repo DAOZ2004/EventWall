@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mi Perfil</title>
+</head>
+<body>
+    <h1>Perfil de {{ profile.user.username }}</h1>
+
+    {% if profile.foto %}
+        <img src="{{ profile.foto.url }}" width="150">
+    {% endif %}
+
+    <p><strong>Correo:</strong> {{ profile.user.email }}</p>
+    <p><strong>Teléfono:</strong> {{ profile.telefono }}</p>
+    <p><strong>Biografía:</strong> {{ profile.bio }}</p>
+
+    <a href="{% url 'home' %}">Volver al inicio</a>
+</body>
+</html>
