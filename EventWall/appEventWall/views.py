@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -33,6 +35,6 @@ def registro_view(request):
 
     return render(request, "registro.html", {"form": form})
 
-
+@login_required
 def home(request):
     return render(request, "home.html")
