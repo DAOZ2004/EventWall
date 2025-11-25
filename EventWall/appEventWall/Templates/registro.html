@@ -3,16 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <title>Registro - EventWall</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>Crear cuenta</h1>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Registrarme</button>
-    </form>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-row">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div>
+                    <div class="brand-title">EventWall</div>
+                    <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
+                </div>
+            </div>
+            <nav class="nav">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'home' %}">Inicio</a>
+                    <a href="{% url 'perfil' %}">Mi perfil</a>
+                    <a href="{% url 'logout' %}">Cerrar sesión</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Iniciar sesión</a>
+                    <a href="{% url 'registro' %}">Registrarse</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</header>
 
-    <p>¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a></p>
+<main>
+    <div class="main-container">
+        <section class="card-panel">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Crear cuenta</h2>
+                    <p class="page-subtitle">Regístrate para empezar a crear y gestionar eventos.</p>
+                </div>
+            </div>
+
+            {% if form.errors %}
+                <div style="margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 0.5rem; background: #fee2e2; color: #991b1b;">
+                    Por favor, corrige los errores marcados en el formulario.
+                </div>
+            {% endif %}
+
+            <div class="form-wrapper">
+                <form method="post" class="form-card">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="id_username" class="form-label">Nombre de usuario</label>
+                        <input id="id_username" name="username" type="text" class="form-input" required>
+                        {% if form.username.errors %}
+                            <div style="color:#b91c1c; font-size:0.8rem; margin-top:0.25rem;">
+                                {{ form.username.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_password1" class="form-label">Contraseña</label>
+                        <input id="id_password1" name="password1" type="password" class="form-input" required>
+                        {% if form.password1.errors %}
+                            <div style="color:#b91c1c; font-size:0.8rem; margin-top:0.25rem;">
+                                {{ form.password1.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_password2" class="form-label">Confirmar contraseña</label>
+                        <input id="id_password2" name="password2" type="password" class="form-input" required>
+                        {% if form.password2.errors %}
+                            <div style="color:#b91c1c; font-size:0.8rem; margin-top:0.25rem;">
+                                {{ form.password2.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn" style="margin-top: 1rem;">
+                        Registrarme
+                    </button>
+                </form>
+            </div>
+
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #52606d;">
+                ¿Ya tienes cuenta?
+                <a href="{% url 'login' %}" style="color: #80AAFF; text-decoration: none;">Inicia sesión</a>
+            </p>
+        </section>
+    </div>
+</main>
+
 </body>
 </html>

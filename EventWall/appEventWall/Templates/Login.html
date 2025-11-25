@@ -2,21 +2,85 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar sesión</title>
+    <title>Iniciar sesión - EventWall</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>Iniciar sesión</h1>
 
-    {% if form.errors %}
-        <p style="color: red;">Usuario o contraseña incorrectos</p>
-    {% endif %}
+<header class="header">
+    <div class="header-inner">
+        <div class="header-row">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div>
+                    <div class="brand-title">EventWall</div>
+                    <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
+                </div>
+            </div>
+            <nav class="nav">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'home' %}">Inicio</a>
+                    <a href="{% url 'perfil' %}">Mi perfil</a>
+                    <a href="{% url 'logout' %}">Cerrar sesión</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Iniciar sesión</a>
+                    <a href="{% url 'registro' %}">Registrarse</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</header>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Entrar</button>
-    </form>
+<main>
+    <div class="main-container">
+        <section class="card-panel">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Iniciar sesión</h2>
+                    <p class="page-subtitle">Accede a tu cuenta para gestionar tus eventos.</p>
+                </div>
+            </div>
 
-    <p>¿No tienes cuenta? <a href="{% url 'registro' %}">Regístrate aquí</a></p>
+            {% if form.non_field_errors %}
+                <div style="margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 0.5rem; background: #fee2e2; color: #991b1b;">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {% if form.errors and not form.non_field_errors %}
+                <div style="margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 0.5rem; background: #fee2e2; color: #991b1b;">
+                    Usuario o contraseña incorrectos.
+                </div>
+            {% endif %}
+
+            <div class="form-wrapper">
+                <form method="post" class="form-card">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="id_username" class="form-label">Usuario</label>
+                        <input id="id_username" name="username" type="text" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_password" class="form-label">Contraseña</label>
+                        <input id="id_password" name="password" type="password" class="form-input" required>
+                    </div>
+
+                    <button type="submit" class="btn" style="margin-top: 1rem;">
+                        Entrar
+                    </button>
+                </form>
+            </div>
+
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #52606d;">
+                ¿No tienes cuenta?
+                <a href="{% url 'registro' %}" style="color: #80AAFF; text-decoration: none;">Regístrate aquí</a>
+            </p>
+        </section>
+    </div>
+</main>
+
 </body>
 </html>

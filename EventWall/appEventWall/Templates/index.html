@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>EventWall - Lista de eventos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-row">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div>
+                    <div class="brand-title">EventWall</div>
+                    <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Eventos</a>
+                <a href="admin.html">Panel administración</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="main-container">
+        <section class="card-panel">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Eventos</h2>
+                    <p class="page-subtitle">Listado general de eventos registrados.</p>
+                </div>
+                <a href="evento_form.html" class="btn">+ Nuevo evento</a>
+            </div>
+
+            <!-- Filtros -->
+            <form class="filters">
+                <input type="text" class="input-text" placeholder="Buscar por título...">
+                <select class="select">
+                    <option value="">Todos los tipos</option>
+                    <option value="conferencia">Conferencia</option>
+                    <option value="taller">Taller</option>
+                    <option value="reunion">Reunión</option>
+                    <option value="otro">Otro</option>
+                </select>
+                <button type="submit" class="btn-ghost">Aplicar filtros</button>
+            </form>
+
+            <!-- Lista de eventos (ejemplos) -->
+            <ul class="events-list">
+                <li class="event-card">
+                    <div class="event-main">
+                        <div class="event-title">
+                            Charla de Ciberseguridad
+                            <span class="badge">Conferencia</span>
+                        </div>
+                        <div class="event-meta">
+                            25/11/2025 · 10:00 AM · Auditorio Principal
+                        </div>
+                        <p class="event-description">
+                            Introducción a conceptos básicos de ciberseguridad para estudiantes.
+                        </p>
+                    </div>
+                    <div class="event-actions">
+                        <a href="evento_detalle.html" class="btn-ghost">Ver</a>
+                        <a href="evento_form.html" class="btn-secondary">Editar</a>
+                        <a href="evento_eliminar.html" class="btn-danger">Eliminar</a>
+                    </div>
+                </li>
+
+                <li class="event-card">
+                    <div class="event-main">
+                        <div class="event-title">
+                            Taller de Django básico
+                            <span class="badge">Taller</span>
+                        </div>
+                        <div class="event-meta">
+                            30/11/2025 · 2:00 PM · Laboratorio 2
+                        </div>
+                        <p class="event-description">
+                            Taller práctico para aprender a crear proyectos web con Django.
+                        </p>
+                    </div>
+                    <div class="event-actions">
+                        <a href="evento_detalle.html" class="btn-ghost">Ver</a>
+                        <a href="evento_form.html" class="btn-secondary">Editar</a>
+                        <a href="evento_eliminar.html" class="btn-danger">Eliminar</a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-inner">
+        Sistema de gestión de eventos - Maqueta HTML/CSS
+    </div>
+</footer>
+</body>
+</html>

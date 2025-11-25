@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>EventWall - Panel de administración</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-row">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div>
+                    <div class="brand-title">EventWall</div>
+                    <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Eventos</a>
+                <a href="admin.html">Panel administración</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="main-container">
+        <section class="card-panel">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Panel de administración</h2>
+                    <p class="page-subtitle">Gestión de todos los eventos registrados.</p>
+                </div>
+                <a href="evento_form.html" class="btn">+ Nuevo evento</a>
+            </div>
+
+            <ul class="events-list">
+                <li class="event-card">
+                    <div class="event-main">
+                        <div class="event-title">
+                            Charla de Ciberseguridad
+                            <span class="badge">Conferencia</span>
+                        </div>
+                        <div class="event-meta">
+                            25/11/2025 · 10:00 AM · Auditorio Principal
+                        </div>
+                    </div>
+                    <div class="event-actions">
+                        <a href="evento_form.html" class="btn-secondary">Editar</a>
+                        <a href="evento_eliminar.html" class="btn-danger">Eliminar</a>
+                    </div>
+                </li>
+            </ul>
+        </section>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-inner">
+        Sistema de gestión de eventos - Maqueta HTML/CSS
+    </div>
+</footer>
+</body>
+</html>

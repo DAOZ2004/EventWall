@@ -3,47 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <title>Inicio - EventWall</title>
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-
 <body>
 
-    <!-- NAVBAR -->
-   <nav style="background-color: #121212; padding: 15px;">
-    <div style="
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        max-width: 1200px;
-        margin: auto;
-    ">
-        <!-- Título -->
-        <h2 style="color: white; margin: 0;">EventWall</h2>
-
-        <!-- Botones -->
-        <div style="
-            display: flex;
-            gap: 20px;
-        ">
-            <a href="{% url 'home' %}" style="color: white; text-decoration: none;">Inicio</a>
-            <a href="#" style="color: white; text-decoration: none;">Eventos</a>
-            <a href="{% url 'perfil' %}" style="color: white; text-decoration: none;">Mi Perfil</a>
-            <a href="{% url 'logout' %}" style="color: #ff5555; text-decoration: none;">Cerrar sesión</a>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-row">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div>
+                    <div class="brand-title">EventWall</div>
+                    <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
+                </div>
+            </div>
+            <nav class="nav">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'home' %}">Inicio</a>
+                    <a href="{% url 'perfil' %}">Mi perfil</a>
+                    <a href="{% url 'logout' %}">Cerrar sesión</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Iniciar sesión</a>
+                    <a href="{% url 'registro' %}">Registrarse</a>
+                {% endif %}
+            </nav>
         </div>
     </div>
-</nav>
+</header>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <div class="container mt-4">
-        <h1>Bienvenido a EventWall</h1>
-        <p>Has iniciado sesión correctamente.</p>
+<main>
+    <div class="main-container">
+        <section class="card-panel">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Bienvenido a EventWall</h2>
+                    <p class="page-subtitle">
+                        Has iniciado sesión correctamente. Desde aquí podrás gestionar tus eventos y tu perfil.
+                    </p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-top: 1rem;">
+                <div class="event-card">
+                    <div class="event-main">
+                        <div class="event-title">
+                            Eventos
+                        </div>
+                        <p class="event-description">
+                            Ve el listado de eventos, crea nuevos y administra los existentes.
+                        </p>
+                    </div>
+                    <div class="event-actions">
+                        <a href="#" class="btn-secondary">Ver eventos</a>
+                    </div>
+                </div>
+
+                <div class="event-card">
+                    <div class="event-main">
+                        <div class="event-title">
+                            Mi perfil
+                        </div>
+                        <p class="event-description">
+                            Revisa y actualiza tu información personal.
+                        </p>
+                    </div>
+                    <div class="event-actions">
+                        <a href="{% url 'perfil' %}" class="btn-secondary">Ir a mi perfil</a>
+                    </div>
+                </div>
+
+                <div class="event-card">
+                    <div class="event-main">
+                        <div class="event-title">
+                            Cerrar sesión
+                        </div>
+                        <p class="event-description">
+                            Sal de tu cuenta de forma segura cuando termines.
+                        </p>
+                    </div>
+                    <div class="event-actions">
+                        <a href="{% url 'logout' %}" class="btn-secondary">Cerrar sesión</a>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
-
-
-    <!-- BOOTSTRAP JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</main>
 
 </body>
 </html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>EventWall - Formulario de evento</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-row">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div>
+                    <div class="brand-title">EventWall</div>
+                    <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="index.html">Eventos</a>
+                <a href="admin.html">Panel administración</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="main-container">
+        <section class="card-panel">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Crear / Editar evento</h2>
+                    <p class="page-subtitle">Completa la información básica del evento.</p>
+                </div>
+            </div>
+
+            <div class="form-wrapper">
+                <form class="form-card">
+                    <div class="form-group">
+                        <label for="titulo" class="form-label">Título</label>
+                        <input type="text" id="titulo" class="form-input" placeholder="Ej: Charla de Ciberseguridad">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea id="descripcion" class="form-textarea" placeholder="Describe el evento..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fecha" class="form-label">Fecha</label>
+                        <input type="date" id="fecha" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="hora" class="form-label">Hora</label>
+                        <input type="time" id="hora" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lugar" class="form-label">Lugar</label>
+                        <input type="text" id="lugar" class="form-input" placeholder="Ej: Auditorio Principal">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipo" class="form-label">Tipo de evento</label>
+                        <select id="tipo" class="form-select">
+                            <option value="">Selecciona un tipo</option>
+                            <option value="conferencia">Conferencia</option>
+                            <option value="taller">Taller</option>
+                            <option value="reunion">Reunión</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <button type="submit" class="btn">Guardar</button>
+                        <a href="index.html" class="btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer>
+    <div class="footer-inner">
+        Sistema de gestión de eventos - Maqueta HTML/CSS
+    </div>
+</footer>
+</body>
+</html>
