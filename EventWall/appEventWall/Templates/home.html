@@ -57,35 +57,35 @@
                         </p>
                     </div>
                     <div class="event-actions">
-                        <a href="#" class="btn-secondary">Ver eventos</a>
+                        <a href="{% url 'Eventos' %}" class="btn-secondary">Ver eventos</a>
                     </div>
                 </div>
 
                 <div class="event-card">
                     <div class="event-main">
                         <div class="event-title">
-                            Mi perfil
+                            Mis comunidades
                         </div>
                         <p class="event-description">
-                            Revisa y actualiza tu información personal.
+                            Revisa y explora tus comunidades.
                         </p>
                     </div>
                     <div class="event-actions">
-                        <a href="{% url 'perfil' %}" class="btn-secondary">Ir a mi perfil</a>
+                        <a href="{% url 'Comunidades' %}" class="btn-secondary">Ver mis comunidades</a>
                     </div>
                 </div>
 
                 <div class="event-card">
                     <div class="event-main">
                         <div class="event-title">
-                            Cerrar sesión
+                            Crear comunidad
                         </div>
                         <p class="event-description">
-                            Sal de tu cuenta de forma segura cuando termines.
+                            Crea una comunidad para que se publiquen tus eventos.
                         </p>
                     </div>
                     <div class="event-actions">
-                        <a href="{% url 'logout' %}" class="btn-secondary">Cerrar sesión</a>
+                        <a href="{% url 'CrearComunidad' %}" class="btn-secondary">Crea una comunidad</a>
                     </div>
                 </div>
             </div>

@@ -52,3 +52,15 @@ def home(request):
 def perfil_view(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     return render(request, "perfil.html", {"profile": profile})
+
+@login_required
+def eventos_view(request):
+    return render(request, "Eventos.html")
+
+@login_required
+def comunidades_view(request):
+    return render(request, "Comunidades.html")
+
+@login_required
+def crear_comunidad_view(request):
+    return render(request, "ComunidadCreacion.html")
