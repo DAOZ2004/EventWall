@@ -25,12 +25,12 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('logout/', views.logout_view, name='logout'),
     path('perfil/', views.perfil_view, name='perfil'),
-    path('Comunidades/', views.comunidades_view, name='Comunidades'),
-    path('CrearComunidad/', views.crear_comunidad_view, name='CrearComunidad'),
     # 📌 Eventos
     path('eventosLista/', views.eventos_list, name='eventos_list'),
     path('eventos/nuevo/', views.evento_crear, name='evento_crear'),
     path('eventos/<int:pk>/', views.evento_detalle, name='evento_detalle'),
     path('eventos/<int:pk>/editar/', views.evento_editar, name='evento_editar'),
     path('eventos/<int:pk>/eliminar/', views.evento_eliminar, name='evento_eliminar'),
+    path("comunidades/", views.comunidades_list, name="Comunidades"),
+    path("comunidades/nueva/", views.crear_comunidad_view, name="CrearComunidad"),
 ]

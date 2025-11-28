@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Evento 
+from .models import Evento
+from .models import Evento, Profile, Comunidad
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(
@@ -27,4 +28,19 @@ class EventForm(forms.ModelForm):
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-input'}),
             'hora': forms.TimeInput(attrs={'type': 'time', 'class': 'form-input'}),
+        }
+
+class ComunidadForm(forms.ModelForm):
+    class Meta:
+        model = Comunidad
+        fields = ['nombre', 'descripcion']
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Ej: Comunidad de Programación'
+            }),
+            'descripcion': forms.Textarea(attrs={
+                'class': 'form-textarea',
+                'placeholder': 'Describe la comunidad...'
+            }),
         }

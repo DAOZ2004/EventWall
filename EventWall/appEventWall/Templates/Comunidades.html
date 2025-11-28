@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis comunidades - EventWall</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="icon" href="{% static 'img/EventWall.jpg' %}" type="image/x-icon">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-inner">
+        <div class="header-row">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div>
+                    <div class="brand-title">EventWall</div>
+                    <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="{% url 'home' %}">Inicio</a>
+                <a href="{% url 'eventos_list' %}">Eventos</a>
+                <a href="{% url 'Comunidades' %}">Mis comunidades</a>
+                <a href="{% url 'CrearComunidad' %}">Crear comunidad</a>
+                <a href="{% url 'logout' %}">Cerrar sesión</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="main-container">
+        <section class="card-panel">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Mis comunidades</h2>
+                    <p class="page-subtitle">
+                        Comunidades que has creado en EventWall.
+                    </p>
+                </div>
+                <a href="{% url 'CrearComunidad' %}" class="btn">+ Nueva comunidad</a>
+            </div>
+
+            {% if comunidades %}
+                <ul class="events-list">
+                    {% for comunidad in comunidades %}
+                        <li class="event-card">
+                            <div class="event-main">
+                                <div class="event-title">
+                                    {{ comunidad.nombre }}
+                                </div>
+                                <p class="event-description">
+                                    {{ comunidad.descripcion|default:"Sin descripción." }}
+                                </p>
+                                <div class="event-meta">
+                                    Creada el {{ comunidad.creada_en|date:"d/m/Y H:i" }}
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p style="margin-top:1rem; color:#52606d;">
+                    Aún no has creado comunidades.
+                    <a href="{% url 'CrearComunidad' %}">Crea la primera</a>.
+                </p>
+            {% endif %}
+        </section>
+    </div>
+</main>
+
+</body>
+</html>

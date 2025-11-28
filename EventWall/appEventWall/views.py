@@ -3,10 +3,12 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from .models import Profile
 from .forms import CustomUserCreationForm
 from .models import Evento
 from .forms import EventForm
+from .models import Profile, Evento, Comunidad
+from .forms import CustomUserCreationForm, EventForm, ComunidadForm
+
 
 
 
@@ -106,3 +108,24 @@ def evento_eliminar(request, pk):
         evento.delete()
         return redirect("eventos_list")
     return render(request, "evento_eliminar.html", {"evento": evento})
+
+@login_required
+def comunidades_list(request):
+    # Solo las comunidades creadas por el usuario actual
+    comunidades = Comunidad.objects.filter(propietario=request.user)
+    return render(request, "Comunidades.html", {"comunidades": comunidades})
+
+
+@login_required
+def crear_comunidad_view(request):
+    if request.method == "POST":
+        form = ComunidadForm(request.POST)
+        if form.is_valid():
+            comunidad = form.save(commit=False)
+            comunidad.propietario = request.user
+            comunidad.save()
+            return redirect("Comunidades")   # nombre del url de lista
+    else:
+        form = ComunidadForm()
+
+    return render(request, "ComunidadCreacion.html", {"form": form})

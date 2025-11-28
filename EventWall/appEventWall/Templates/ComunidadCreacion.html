@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear comunidad - EventWall</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="icon" href="{% static 'img/EventWall.jpg' %}" type="image/x-icon">
+</head>
+<body>
+
+<header class="header">
+    <div class="header-inner">
+        <div class="header-row">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div>
+                    <div class="brand-title">EventWall</div>
+                    <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="{% url 'home' %}">Inicio</a>
+                <a href="{% url 'Comunidades' %}">Mis comunidades</a>
+                <a href="{% url 'logout' %}">Cerrar sesión</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="main-container">
+        <section class="card-panel">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">Crear comunidad</h2>
+                    <p class="page-subtitle">
+                        Crea una comunidad para agrupar y publicar tus eventos.
+                    </p>
+                </div>
+            </div>
+
+            <div class="form-wrapper">
+                <form method="post" class="form-card">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                            Nombre de la comunidad
+                        </label>
+                        {{ form.nombre }}
+                        {% if form.nombre.errors %}
+                            <div style="color:#b91c1c; font-size:0.8rem; margin-top:0.25rem;">
+                                {{ form.nombre.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                            Descripción
+                        </label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.errors %}
+                            <div style="color:#b91c1c; font-size:0.8rem; margin-top:0.25rem;">
+                                {{ form.descripcion.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div style="display:flex; gap:8px; margin-top:12px;">
+                        <button type="submit" class="btn">Guardar comunidad</button>
+                        <a href="{% url 'Comunidades' %}" class="btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
+</main>
+
+</body>
+</html>
