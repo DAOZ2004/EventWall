@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from .models import Profile
 from .forms import CustomUserCreationForm
+from .models import Evento
+from .forms import EventForm
+
 
 
 def login_view(request):
@@ -54,13 +57,52 @@ def perfil_view(request):
     return render(request, "perfil.html", {"profile": profile})
 
 @login_required
-def eventos_view(request):
-    return render(request, "Eventos.html")
-
-@login_required
 def comunidades_view(request):
     return render(request, "Comunidades.html")
 
 @login_required
 def crear_comunidad_view(request):
     return render(request, "ComunidadCreacion.html")
+
+@login_required
+def eventos_list(request):
+    eventos = Evento.objects.order_by('fecha', 'hora')
+    return render(request, "eventos_list.html", {"eventos": eventos})
+
+@login_required
+def evento_detalle(request, pk):
+    evento = get_object_or_404(Evento, pk=pk)
+    return render(request, "evento_detalle.html", {"evento": evento})
+
+@login_required
+def evento_crear(request):
+    if request.method == "POST":
+        form = EventForm(request.POST)
+        if form.is_valid():
+            evento = form.save(commit=False)
+            evento.creado_por = request.user
+            evento.save()
+            return redirect("eventos_list")
+    else:
+        form = EventForm()
+    return render(request, "evento_form.html", {"form": form})
+
+@login_required
+def evento_editar(request, pk):
+    evento = get_object_or_404(Evento, pk=pk)
+    if request.method == "POST":
+        form = EventForm(request.POST, instance=evento)
+        if form.is_valid():
+            form.save()
+            return redirect("eventos_list")
+    else:
+        form = EventForm(instance=evento)
+    return render(request, "evento_form.html", {"form": form, "evento": evento})
+
+@login_required
+def evento_eliminar(request, pk):
+    evento = get_object_or_404(Evento, pk=pk)
+    if request.method == "POST":
+        evento.delete()
+        return redirect("eventos_list")
+    return render(request, "evento_eliminar.html", {"evento": evento})

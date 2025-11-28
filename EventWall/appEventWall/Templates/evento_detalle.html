@@ -32,27 +32,24 @@
         <section class="card-panel">
             <div class="page-header">
                 <div>
-                    <h2 class="page-title">Charla de Ciberseguridad</h2>
+                    <h2 class="page-title">{{ evento.titulo }}</h2>
                     <p class="page-subtitle">Detalle completo del evento seleccionado.</p>
                 </div>
                 <span class="badge">Conferencia</span>
             </div>
 
             <div class="detail-section">
-                <p><strong>Fecha:</strong> 25/11/2025 - 10:00 AM</p>
-                <p><strong>Lugar:</strong> Auditorio Principal</p>
+                <p><strong>Fecha:</strong> {{ evento.fecha|date:"d/m/Y" }} - {{ evento.hora|time:"H:i" }}</p>
+                <p><strong>Lugar:</strong> {{ evento.lugar }}</p>
 
                 <h3>Descripción</h3>
-                <p>
-                    Introducción a conceptos básicos de ciberseguridad para estudiantes,
-                    abordando buenas prácticas y ejemplos reales.
-                </p>
+                <p>{{ evento.descripcion }}</p>
             </div>
 
             <div style="margin-top:14px; display:flex; gap:8px;">
-                <a href="index.html" class="btn-secondary">← Volver al listado</a>
-                <a href="evento_form.html" class="btn">Editar</a>
-                <a href="evento_eliminar.html" class="btn-danger">Eliminar</a>
+                <a href="{% url 'eventos_list' %}" class="btn-secondary">← Volver al listado</a>
+                <a href="{% url 'evento_editar' evento.pk %}" class="btn">Editar</a>
+                <a href="{% url 'evento_eliminar' evento.pk %}" class="btn-danger">Eliminar</a>
             </div>
         </section>
     </div>

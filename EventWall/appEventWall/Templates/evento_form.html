@@ -20,8 +20,9 @@
                 </div>
             </div>
             <nav class="nav">
-                <a href="index.html">Eventos</a>
-                <a href="admin.html">Panel administración</a>
+                <!-- Ajusta estas URLs a tus rutas reales -->
+                <a href="{% url 'eventos_list' %}">Eventos</a>
+                <a href="{% url 'home' %}">Panel administración</a>
             </nav>
         </div>
     </div>
@@ -32,52 +33,68 @@
         <section class="card-panel">
             <div class="page-header">
                 <div>
-                    <h2 class="page-title">Crear / Editar evento</h2>
-                    <p class="page-subtitle">Completa la información básica del evento.</p>
+                    <h2 class="page-title">
+                        {% if evento %}
+                            Editar evento
+                        {% else %}
+                            Crear evento
+                        {% endif %}
+                    </h2>
+                    <p class="page-subtitle">
+                        {% if evento %}
+                            Modifica la información del evento seleccionado.
+                        {% else %}
+                            Completa la información básica del nuevo evento.
+                        {% endif %}
+                    </p>
                 </div>
             </div>
 
             <div class="form-wrapper">
-                <form class="form-card">
+                <form method="post" class="form-card">
+                    {% csrf_token %}
+
+                    {{ form.non_field_errors }}
+
                     <div class="form-group">
-                        <label for="titulo" class="form-label">Título</label>
-                        <input type="text" id="titulo" class="form-input" placeholder="Ej: Charla de Ciberseguridad">
+                        <label class="form-label" for="{{ form.titulo.id_for_label }}">Título</label>
+                        {{ form.titulo }}
+                        {{ form.titulo.errors }}
                     </div>
 
                     <div class="form-group">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea id="descripcion" class="form-textarea" placeholder="Describe el evento..."></textarea>
+                        <label class="form-label" for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                        {{ form.descripcion }}
+                        {{ form.descripcion.errors }}
                     </div>
 
                     <div class="form-group">
-                        <label for="fecha" class="form-label">Fecha</label>
-                        <input type="date" id="fecha" class="form-input">
+                        <label class="form-label" for="{{ form.fecha.id_for_label }}">Fecha</label>
+                        {{ form.fecha }}
+                        {{ form.fecha.errors }}
                     </div>
 
                     <div class="form-group">
-                        <label for="hora" class="form-label">Hora</label>
-                        <input type="time" id="hora" class="form-input">
+                        <label class="form-label" for="{{ form.hora.id_for_label }}">Hora</label>
+                        {{ form.hora }}
+                        {{ form.hora.errors }}
                     </div>
 
                     <div class="form-group">
-                        <label for="lugar" class="form-label">Lugar</label>
-                        <input type="text" id="lugar" class="form-input" placeholder="Ej: Auditorio Principal">
+                        <label class="form-label" for="{{ form.lugar.id_for_label }}">Lugar</label>
+                        {{ form.lugar }}
+                        {{ form.lugar.errors }}
                     </div>
 
                     <div class="form-group">
-                        <label for="tipo" class="form-label">Tipo de evento</label>
-                        <select id="tipo" class="form-select">
-                            <option value="">Selecciona un tipo</option>
-                            <option value="conferencia">Conferencia</option>
-                            <option value="taller">Taller</option>
-                            <option value="reunion">Reunión</option>
-                            <option value="otro">Otro</option>
-                        </select>
+                        <label class="form-label" for="{{ form.tipo.id_for_label }}">Tipo de evento</label>
+                        {{ form.tipo }}
+                        {{ form.tipo.errors }}
                     </div>
 
                     <div style="display:flex; gap:8px; margin-top:12px;">
                         <button type="submit" class="btn">Guardar</button>
-                        <a href="index.html" class="btn-secondary">Cancelar</a>
+                        <a href="{% url 'eventos_list' %}" class="btn-secondary">Cancelar</a>
                     </div>
                 </form>
             </div>
@@ -87,7 +104,7 @@
 
 <footer>
     <div class="footer-inner">
-        Sistema de gestión de eventos - Maqueta HTML/CSS
+        Sistema de gestión de eventos - EventWall
     </div>
 </footer>
 </body>
