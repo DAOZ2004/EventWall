@@ -20,8 +20,9 @@
                 </div>
             </div>
             <nav class="nav">
-                <a href="index.html">Eventos</a>
-                <a href="admin.html">Panel administración</a>
+                <!-- Ajusta estos nombres de URL a los que tengas -->
+                <a href="{% url 'eventos_list' %}">Eventos</a>
+                <a href="{% url 'eventos_list' %}">Panel administración</a>
             </nav>
         </div>
     </div>
@@ -38,23 +39,51 @@
                 <a href="{% url 'evento_crear' %}" class="btn">+ Nuevo evento</a>
             </div>
 
-            <ul class="events-list">
-                <li class="event-card">
-                    <div class="event-main">
-                        <div class="event-title">
-                            Charla de Ciberseguridad
-                            <span class="badge">Conferencia</span>
-                        </div>
-                        <div class="event-meta">
-                            25/11/2025 · 10:00 AM · Auditorio Principal
-                        </div>
-                    </div>
-                    <div class="event-actions">
-                        <a href="evento_form.html" class="btn-secondary">Editar</a>
-                        <a href="evento_eliminar.html" class="btn-danger">Eliminar</a>
-                    </div>
-                </li>
-            </ul>
+            {% if eventos %}
+                <ul class="events-list">
+                    {% for evento in eventos %}
+                        <li class="event-card">
+                            <div class="event-main">
+                                <div class="event-title">
+                                    {{ evento.titulo }}
+                                    {% if evento.tipo %}
+                                        <span class="badge">
+                                            {{ evento.get_tipo_display }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="event-meta">
+                                    {{ evento.fecha|date:"d/m/Y" }}
+                                    {% if evento.hora %}
+                                        · {{ evento.hora|time:"H:i" }}
+                                    {% endif %}
+                                    {% if evento.lugar %}
+                                        · {{ evento.lugar }}
+                                    {% endif %}
+                                </div>
+                                {% if evento.descripcion %}
+                                    <p class="event-description">
+                                        {{ evento.descripcion|truncatechars:120 }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                            <div class="event-actions">
+                                <a href="{% url 'evento_editar' evento.id %}" class="btn-secondary">
+                                    Editar
+                                </a>
+                                <a href="{% url 'evento_eliminar' evento.id %}" class="btn-danger">
+                                    Eliminar
+                                </a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p style="margin-top: 1rem; color:#52606d;">
+                    Aún no hay eventos registrados. Usa el botón
+                    <strong>“+ Nuevo evento”</strong> para crear el primero.
+                </p>
+            {% endif %}
         </section>
     </div>
 </main>
