@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ comunidad.nombre }} - EventWall</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="icon" href="{% static 'img/EventWall.jpg' %}" type="image/x-icon">
+</head>
+<body>
+<header class="header">
+    <div class="header-inner">
+        <div class="header-row">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div>
+                    <div class="brand-title">EventWall</div>
+                    <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
+                </div>
+            </div>
+            <nav class="nav">
+                <a href="{% url 'home' %}">Inicio</a>
+                <a href="{% url 'eventos_list' %}">Eventos</a>
+                <a href="{% url 'Comunidades' %}">Mis comunidades</a>
+                <a href="{% url 'CrearComunidad' %}">Crear comunidad</a>
+                <a href="{% url 'logout' %}">Cerrar sesión</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<main>
+    <div class="main-container">
+        <section class="card-panel">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">{{ comunidad.nombre }}</h2>
+                    <p class="page-subtitle">
+                        {{ comunidad.descripcion|default:"Sin descripción" }}
+                    </p>
+                </div>
+                <a href="{% url 'evento_crear_en_comunidad' comunidad.id %}" class="btn">
+                    + Nuevo evento en esta comunidad
+                </a>
+            </div>
+
+            <ul class="events-list">
+                {% for evento in eventos %}
+                    <li class="event-card">
+                        <div class="event-main">
+                            <div class="event-title">
+                                {{ evento.titulo }}
+                                <span class="badge">{{ evento.get_tipo_display }}</span>
+                            </div>
+                            <div class="event-meta">
+                                {{ evento.fecha|date:"d/m/Y" }}
+                                · {{ evento.hora|time:"H:i" }}
+                                · {{ evento.lugar }}
+                            </div>
+                            <p class="event-description">
+                                {{ evento.descripcion }}
+                            </p>
+                        </div>
+                        <div class="event-actions">
+                            <a href="{% url 'evento_editar' evento.id %}" class="btn-secondary">Editar</a>
+                            <a href="{% url 'evento_eliminar' evento.id %}" class="btn-danger">Eliminar</a>
+                        </div>
+                    </li>
+                {% empty %}
+                    <p>No hay eventos en esta comunidad todavía. Crea uno con el botón de arriba.</p>
+                {% endfor %}
+            </ul>
+        </section>
+    </div>
+</main>
+</body>
+</html>

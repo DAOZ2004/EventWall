@@ -77,17 +77,34 @@ def evento_detalle(request, pk):
     return render(request, "evento_detalle.html", {"evento": evento})
 
 @login_required
-def evento_crear(request):
+def evento_crear(request, comunidad_id=None):
+    comunidad = None
+    if comunidad_id is not None:
+        comunidad = get_object_or_404(Comunidad, id=comunidad_id, propietario=request.user)
+
     if request.method == "POST":
-        form = EventForm(request.POST)
+        form = EventForm(request.POST, user=request.user)
         if form.is_valid():
             evento = form.save(commit=False)
             evento.creado_por = request.user
+            if comunidad is not None:
+                evento.comunidad = comunidad   # lo forzamos a esta comunidad
             evento.save()
+            # Si venimos desde una comunidad, regresamos ahí
+            if comunidad is not None:
+                return redirect("comunidad_detalle", pk=comunidad.id)
             return redirect("eventos_list")
     else:
-        form = EventForm()
-    return render(request, "evento_form.html", {"form": form})
+        initial = {}
+        if comunidad is not None:
+            initial["comunidad"] = comunidad
+        form = EventForm(user=request.user, initial=initial)
+
+    return render(
+        request,
+        "evento_form.html",
+        {"form": form, "comunidad": comunidad},
+    )
 
 @login_required
 def evento_editar(request, pk):
@@ -129,3 +146,13 @@ def crear_comunidad_view(request):
         form = ComunidadForm()
 
     return render(request, "ComunidadCreacion.html", {"form": form})
+
+@login_required
+def comunidad_detalle(request, pk):
+    comunidad = get_object_or_404(Comunidad, pk=pk, propietario=request.user)
+    eventos = comunidad.eventos.order_by("fecha", "hora")
+    return render(
+        request,
+        "comunidad_detalle.html",
+        {"comunidad": comunidad, "eventos": eventos},
+    )

@@ -33,4 +33,10 @@ urlpatterns = [
     path('eventos/<int:pk>/eliminar/', views.evento_eliminar, name='evento_eliminar'),
     path("comunidades/", views.comunidades_list, name="Comunidades"),
     path("comunidades/nueva/", views.crear_comunidad_view, name="CrearComunidad"),
+    path("comunidades/<int:pk>/", views.comunidad_detalle, name="comunidad_detalle"),
+    path(
+        "comunidades/<int:comunidad_id>/eventos/nuevo/",
+        views.evento_crear,
+        name="evento_crear_en_comunidad",
+    ),
 ]

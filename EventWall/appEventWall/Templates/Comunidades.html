@@ -7,21 +7,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="icon" href="{% static 'img/EventWall.jpg' %}" type="image/x-icon">
+
+    <!-- 🔥 ESTILO PARA TARJETAS DE COMUNIDAD -->
+    <style>
+        .community-card-link {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            margin-bottom: 1rem;
+        }
+
+        .community-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 18px 22px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .community-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.25);
+            background: #f9fafb;
+        }
+
+        .community-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .community-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #4b164c; /* Morado EventWall */
+            margin: 0;
+        }
+
+        .community-description {
+            margin: 4px 0 0 0;
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+
+        .community-meta {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        /* Para eliminar el estilo de <ul> y <li> */
+        .events-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
 </head>
+
 <body>
 
 <header class="header">
     <div class="header-inner">
         <div class="header-row">
             <div class="brand">
-                <img src="{% static 'img/EventWall.jpg' %}" 
-                    alt="EventWall logo" 
-                    style="width:40px; height:40px; border-radius:12px; margin-right:10px;">
+                <img src="{% static 'img/EventWall.jpg' %}"
+                     alt="EventWall logo"
+                     style="width:40px; height:40px; border-radius:12px; margin-right:10px;">
                 <div>
                     <div class="brand-title">EventWall</div>
                     <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
                 </div>
             </div>
+
             <nav class="nav">
                 <a href="{% url 'home' %}">Inicio</a>
                 <a href="{% url 'eventos_list' %}">Eventos</a>
@@ -36,40 +97,44 @@
 <main>
     <div class="main-container">
         <section class="card-panel">
+
             <div class="page-header">
                 <div>
                     <h2 class="page-title">Mis comunidades</h2>
-                    <p class="page-subtitle">
-                        Comunidades que has creado en EventWall.
-                    </p>
+                    <p class="page-subtitle">Comunidades que has creado en EventWall.</p>
                 </div>
+
                 <a href="{% url 'CrearComunidad' %}" class="btn">+ Nueva comunidad</a>
             </div>
 
             {% if comunidades %}
                 <ul class="events-list">
-                    {% for comunidad in comunidades %}
-                        <li class="event-card">
-                            <div class="event-main">
-                                <div class="event-title">
-                                    {{ comunidad.nombre }}
-                                </div>
-                                <p class="event-description">
-                                    {{ comunidad.descripcion|default:"Sin descripción." }}
-                                </p>
-                                <div class="event-meta">
-                                    Creada el {{ comunidad.creada_en|date:"d/m/Y H:i" }}
-                                </div>
+                {% for comunidad in comunidades %}
+                    
+                    <a href="{% url 'comunidad_detalle' comunidad.id %}" class="community-card-link">
+                        <div class="community-card">
+                            <div class="community-card-header">
+                                <h3 class="community-name">{{ comunidad.nombre }}</h3>
                             </div>
-                        </li>
-                    {% endfor %}
+
+                            <p class="community-description">{{ comunidad.descripcion }}</p>
+
+                            <p class="community-meta">
+                                Creada el {{ comunidad.creada_en|date:"d/m/Y H:i" }}
+                            </p>
+                        </div>
+                    </a>
+
+                {% endfor %}
                 </ul>
+
             {% else %}
                 <p style="margin-top:1rem; color:#52606d;">
                     Aún no has creado comunidades.
                     <a href="{% url 'CrearComunidad' %}">Crea la primera</a>.
                 </p>
             {% endif %}
+
         </section>
     </div>
 </main>

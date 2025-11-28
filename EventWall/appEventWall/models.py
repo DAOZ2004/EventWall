@@ -20,7 +20,7 @@ class Evento(models.Model):
         ('otro', 'Otro'),
     ]
 
-    # Campos que ya tenías
+   
     titulo = models.CharField(max_length=120)
     descripcion = models.TextField(blank=True)
     fecha = models.DateField()
@@ -35,9 +35,17 @@ class Evento(models.Model):
         blank=True
     )
 
-    # Quién creó el evento (del modelo nuevo)
+
     creado_por = models.ForeignKey(
         settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='eventos',
+        null=True,
+        blank=True
+    )
+
+    comunidad = models.ForeignKey(
+        'Comunidad',
         on_delete=models.CASCADE,
         related_name='eventos',
         null=True,

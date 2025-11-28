@@ -21,26 +21,27 @@ class CustomUserCreationForm(UserCreationForm):
             user.save()
         return user
     
-class EventForm(forms.ModelForm):
-    class Meta:
-        model = Evento
-        fields = ['titulo', 'descripcion', 'fecha', 'hora', 'lugar', 'tipo']
-        widgets = {
-            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-input'}),
-            'hora': forms.TimeInput(attrs={'type': 'time', 'class': 'form-input'}),
-        }
-
 class ComunidadForm(forms.ModelForm):
     class Meta:
         model = Comunidad
-        fields = ['nombre', 'descripcion']
-        widgets = {
-            'nombre': forms.TextInput(attrs={
-                'class': 'form-input',
-                'placeholder': 'Ej: Comunidad de Programación'
-            }),
-            'descripcion': forms.Textarea(attrs={
-                'class': 'form-textarea',
-                'placeholder': 'Describe la comunidad...'
-            }),
-        }
+        fields = ["nombre", "descripcion"]
+
+
+class EventForm(forms.ModelForm):
+    class Meta:
+        model = Evento
+        fields = ["titulo", "descripcion", "fecha", "hora", "lugar", "tipo", "comunidad"]
+
+    def __init__(self, *args, **kwargs):
+        # Recuperamos el usuario que viene desde la vista
+        user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+        if user is not None:
+           
+            self.fields["comunidad"].queryset = Comunidad.objects.filter(
+                propietario=user
+            )
+        else:
+            # Si por alguna razón no hay usuario, no mostramos comunidades
+            self.fields["comunidad"].queryset = Comunidad.objects.none()
