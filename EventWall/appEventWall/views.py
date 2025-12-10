@@ -3,6 +3,7 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 from .forms import CustomUserCreationForm
 from .models import Evento
 from .forms import EventForm
@@ -156,3 +157,20 @@ def comunidad_detalle(request, pk):
         "comunidad_detalle.html",
         {"comunidad": comunidad, "eventos": eventos},
     )
+
+@login_required
+def comunidad_eliminar(request, pk):
+    """
+    Permite al propietario (propietario) eliminar su comunidad.
+    Muestra un formulario de confirmación GET -> POST para borrar.
+    """
+    comunidad = get_object_or_404(Comunidad, pk=pk, propietario=request.user)
+
+    if request.method == "POST":
+        # eliminar y redirigir con mensaje
+        comunidad.delete()
+        messages.success(request, "La comunidad se eliminó correctamente.")
+        return redirect("Comunidades")  # nombre de la URL de la lista de comunidades
+
+    # GET -> mostrar confirmación
+    return render(request, "comunidad_confirm_delete.html", {"comunidad": comunidad})

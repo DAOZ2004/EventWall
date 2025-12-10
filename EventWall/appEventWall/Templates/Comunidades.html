@@ -8,66 +8,100 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="icon" href="{% static 'img/EventWall.jpg' %}" type="image/x-icon">
 
-    <!-- 🔥 ESTILO PARA TARJETAS DE COMUNIDAD -->
+    <!-- Estilos específicos para la lista de comunidades -->
     <style>
-        .community-card-link {
-            display: block;
-            text-decoration: none;
-            color: inherit;
-            margin-bottom: 1rem;
-        }
+        .events-list { list-style: none; padding: 0; margin: 0; }
 
         .community-card {
+            position: relative;               /* para overlay y botón */
             background: #ffffff;
             border-radius: 20px;
             padding: 18px 22px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
-            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            box-shadow: 0 10px 30px rgba(15,23,42,0.15);
+            transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+            margin-bottom: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 8px;
+            overflow: hidden;
         }
 
         .community-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.25);
+            box-shadow: 0 16px 40px rgba(15,23,42,0.25);
             background: #f9fafb;
         }
 
         .community-card-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 12px;
         }
 
         .community-name {
             font-size: 1.1rem;
             font-weight: 700;
-            color: #4b164c; /* Morado EventWall */
+            color: #4b164c;
             margin: 0;
         }
 
         .community-description {
-            margin: 4px 0 0 0;
-            font-size: 0.9rem;
+            margin: 0;
+            font-size: 0.95rem;
             color: #4b5563;
         }
 
         .community-meta {
             margin: 0;
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             color: #9ca3af;
         }
 
-        /* Para eliminar el estilo de <ul> y <li> */
-        .events-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        /* Botón eliminar (pequeño) */
+        .btn-small-danger {
+            background: linear-gradient(180deg,#ff5a74,#e23a5b);
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            z-index: 3; /* por encima del overlay */
+        }
+
+        .btn-small-danger:hover { opacity: 0.95; }
+
+        /* Contenedor derecho para acciones (botón) */
+        .card-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Overlay link que ocupa toda la tarjeta para hacerla clickeable */
+        .card-link-overlay {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Contenido visible por encima del overlay */
+        .card-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Ajustes responsivos pequeños */
+        @media (max-width: 640px) {
+            .community-card { padding: 14px; }
+            .community-name { font-size: 1rem; }
         }
     </style>
 </head>
-
 <body>
 
 <header class="header">
@@ -109,25 +143,34 @@
 
             {% if comunidades %}
                 <ul class="events-list">
-                {% for comunidad in comunidades %}
-                    
-                    <a href="{% url 'comunidad_detalle' comunidad.id %}" class="community-card-link">
-                        <div class="community-card">
-                            <div class="community-card-header">
-                                <h3 class="community-name">{{ comunidad.nombre }}</h3>
+                    {% for comunidad in comunidades %}
+                        <li>
+                            <div class="community-card">
+
+                                <!-- Overlay clickable: va abajo (z-index:0) -->
+                                <a href="{% url 'comunidad_detalle' comunidad.id %}" class="card-link-overlay" aria-label="Abrir {{ comunidad.nombre }}"></a>
+
+                                <!-- Contenido de la tarjeta (por encima del overlay) -->
+                                <div class="card-content">
+                                    <div class="community-card-header">
+                                        <h3 class="community-name">{{ comunidad.nombre }}</h3>
+
+                                        <div class="card-actions">
+                                            <!-- Botón eliminar: POST seguro con confirm -->
+                                            <form action="{% url 'comunidad_eliminar' comunidad.id %}" method="post" onsubmit="return confirm('¿Eliminar la comunidad «{{ comunidad.nombre }}»? Esta acción no se puede deshacer.');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn-small-danger">Eliminar</button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <p class="community-description">{{ comunidad.descripcion }}</p>
+                                    <p class="community-meta">Creada el {{ comunidad.creada_en|date:"d/m/Y H:i" }}</p>
+                                </div>
                             </div>
-
-                            <p class="community-description">{{ comunidad.descripcion }}</p>
-
-                            <p class="community-meta">
-                                Creada el {{ comunidad.creada_en|date:"d/m/Y H:i" }}
-                            </p>
-                        </div>
-                    </a>
-
-                {% endfor %}
+                        </li>
+                    {% endfor %}
                 </ul>
-
             {% else %}
                 <p style="margin-top:1rem; color:#52606d;">
                     Aún no has creado comunidades.

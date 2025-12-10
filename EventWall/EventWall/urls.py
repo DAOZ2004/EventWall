@@ -39,4 +39,5 @@ urlpatterns = [
         views.evento_crear,
         name="evento_crear_en_comunidad",
     ),
+    path('comunidades/<int:pk>/eliminar/', views.comunidad_eliminar, name='comunidad_eliminar'),
 ]
