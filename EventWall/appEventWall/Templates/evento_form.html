@@ -7,6 +7,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="icon" href="{% static 'img/EventWall.jpg' %}" type="image/x-icon">
+
+    <!-- flatpickr (CDN) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+      /* pequeñas mejoras visuales locales para el formulario */
+      .form-wrapper { padding: 0.5rem 1rem; }
+      .form-card { max-width: 920px; margin: 0 auto; }
+      .form-group { margin-bottom: 1rem; }
+      .form-label { display:block; margin-bottom:6px; font-weight:600; color:#3b3050; }
+      .hint { display:block; font-size:0.85rem; color:#64748b; margin-top:4px; }
+      .input-inline { display:flex; gap:12px; align-items:center; }
+      .input-inline .col { flex:1; }
+      /* botones alineados */
+      .btn-row { display:flex; gap:8px; margin-top:12px; align-items:center; }
+      /* estilo para inputs nativos si quieres (tu CSS principal probablemente lo sobreescribe) */
+      input[type="text"], input[type="date"], input[type="time"], textarea, select {
+        width:100%;
+        padding:10px 12px;
+        border-radius:8px;
+        border:1px solid #e6e9ef;
+        background:#fff;
+      }
+    </style>
 </head>
 <body>
 <header class="header">
@@ -14,8 +37,8 @@
         <div class="header-row">
             <div class="brand">
                 <img src="{% static 'img/EventWall.jpg' %}" 
-                    alt="EventWall logo" 
-                    style="width:40px; height:40px; border-radius:12px; margin-right:10px;">
+                     alt="EventWall logo" 
+                     style="width:40px; height:40px; border-radius:12px; margin-right:10px;">
                 <div>
                     <div class="brand-title">EventWall</div>
                     <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
@@ -70,16 +93,35 @@
                         {{ form.descripcion.errors }}
                     </div>
 
+                    <!-- Fecha -->
                     <div class="form-group">
                         <label class="form-label" for="{{ form.fecha.id_for_label }}">Fecha</label>
                         {{ form.fecha }}
                         {{ form.fecha.errors }}
+                        <small class="hint">Formato visible: DD/MM/YYYY — puedes usar el selector de fecha.</small>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label" for="{{ form.hora.id_for_label }}">Hora</label>
-                        {{ form.hora }}
-                        {{ form.hora.errors }}
+                    <!-- Horas: si tienes hora_inicio/hora_fin en tu form los usaremos; si no, se usa el campo hora (legacy) -->
+                    <div class="form-group input-inline">
+                        {% if form.hora_inicio and form.hora_fin %}
+                            <div class="col">
+                                <label class="form-label" for="{{ form.hora_inicio.id_for_label }}">Hora inicio</label>
+                                {{ form.hora_inicio }}
+                                {{ form.hora_inicio.errors }}
+                            </div>
+                            <div class="col">
+                                <label class="form-label" for="{{ form.hora_fin.id_for_label }}">Hora fin</label>
+                                {{ form.hora_fin }}
+                                {{ form.hora_fin.errors }}
+                            </div>
+                        {% else %}
+                            <div class="col">
+                                <label class="form-label" for="{{ form.hora.id_for_label }}">Hora</label>
+                                {{ form.hora }}
+                                {{ form.hora.errors }}
+                                <small class="hint">Formato: 08:30 AM — si quieres rango, añade `hora_inicio` y `hora_fin` al formulario.</small>
+                            </div>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
@@ -94,7 +136,7 @@
                         {{ form.tipo.errors }}
                     </div>
 
-                    <div style="display:flex; gap:8px; margin-top:12px;">
+                    <div class="btn-row">
                         <button type="submit" class="btn">Guardar</button>
                         <a href="{% url 'eventos_list' %}" class="btn-secondary">Cancelar</a>
                     </div>
@@ -109,5 +151,61 @@
         Sistema de gestión de eventos - EventWall
     </div>
 </footer>
+
+<!-- flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+  // función segura para buscar por id si existe
+  function el(id) {
+    try { return document.getElementById(id); } catch(e) { return null; }
+  }
+
+  // Añadimos placeholders / clases a los inputs usando los ids del formulario (si existen)
+  (function(){
+    // fecha
+    var fechaId = "{{ form.fecha.id_for_label|default:'' }}";
+    var fechaEl = fechaId ? el(fechaId) : null;
+    if (fechaEl) {
+      // placeholder visible (para navegadores que permitan input text)
+      fechaEl.setAttribute('placeholder', 'DD/MM/YYYY');
+      fechaEl.classList.add('input-date');
+      // inicializar flatpickr en fecha
+      flatpickr(fechaEl, {
+        altInput: true,
+        altFormat: "d/m/Y",
+        dateFormat: "Y-m-d",  // valor enviado al servidor (ajusta si tu forms.input_formats espera otro)
+        allowInput: true
+      });
+    }
+
+    // hora inicio / fin o hora simple
+    var horaInicioId = "{{ form.hora_inicio.id_for_label|default:'' }}";
+    var horaFinId = "{{ form.hora_fin.id_for_label|default:'' }}";
+    var horaId = "{{ form.hora.id_for_label|default:'' }}";
+
+    // helper para inicializar timepicker 12h
+    function initTimePicker(elem, placeholder) {
+      if (!elem) return;
+      elem.setAttribute('placeholder', placeholder || '08:30 AM');
+      elem.classList.add('input-time');
+      flatpickr(elem, {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "h:i K", // muestra 12h con AM/PM
+        time_24hr: false,
+        minuteIncrement: 5
+      });
+    }
+
+    if (horaInicioId && horaFinId) {
+      initTimePicker(el(horaInicioId), '08:30 AM');
+      initTimePicker(el(horaFinId), '10:00 AM');
+    } else if (horaId) {
+      initTimePicker(el(horaId), '08:30 AM');
+    }
+
+  })();
+</script>
 </body>
 </html>
