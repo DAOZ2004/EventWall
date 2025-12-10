@@ -8,98 +8,23 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="icon" href="{% static 'img/EventWall.jpg' %}" type="image/x-icon">
 
-    <!-- Estilos específicos para la lista de comunidades -->
     <style>
-        .events-list { list-style: none; padding: 0; margin: 0; }
-
-        .community-card {
-            position: relative;               /* para overlay y botón */
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 18px 22px;
-            box-shadow: 0 10px 30px rgba(15,23,42,0.15);
-            transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
-            margin-bottom: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            overflow: hidden;
-        }
-
-        .community-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 16px 40px rgba(15,23,42,0.25);
-            background: #f9fafb;
-        }
-
-        .community-card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .community-name {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #4b164c;
-            margin: 0;
-        }
-
-        .community-description {
-            margin: 0;
-            font-size: 0.95rem;
-            color: #4b5563;
-        }
-
-        .community-meta {
-            margin: 0;
-            font-size: 0.82rem;
-            color: #9ca3af;
-        }
-
-        /* Botón eliminar (pequeño) */
-        .btn-small-danger {
-            background: linear-gradient(180deg,#ff5a74,#e23a5b);
-            color: #fff;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 999px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            z-index: 3; /* por encima del overlay */
-        }
-
-        .btn-small-danger:hover { opacity: 0.95; }
-
-        /* Contenedor derecho para acciones (botón) */
-        .card-actions {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Overlay link que ocupa toda la tarjeta para hacerla clickeable */
-        .card-link-overlay {
-            position: absolute;
-            inset: 0;
-            z-index: 0;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        /* Contenido visible por encima del overlay */
-        .card-content {
-            position: relative;
-            z-index: 2;
-        }
-
-        /* Ajustes responsivos pequeños */
-        @media (max-width: 640px) {
-            .community-card { padding: 14px; }
-            .community-name { font-size: 1rem; }
-        }
+        /* Estilos mínimos locales: ajusta en tu css global si quieres */
+        .search-row { display:flex; gap:10px; align-items:center; margin-bottom:1rem; }
+        .search-input { padding:8px 12px; border-radius:10px; border:1px solid #d1d5db; flex:1; }
+        .btn { background:#5b21b6; color:#fff; padding:8px 12px; border-radius:10px; text-decoration:none; }
+        .btn-secondary { background:#e6eef8; color:#1f2937; padding:6px 10px; border-radius:8px; text-decoration:none; }
+        .btn-danger { background:#ef4444; color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none; }
+        .card-panel { background: #f8fafc; padding:20px; border-radius:12px; }
+        .community-card-link { display:block; text-decoration:none; color:inherit; margin-bottom:12px; }
+        .community-card { background:#fff; border-radius:12px; padding:14px 16px; box-shadow:0 6px 18px rgba(0,0,0,0.06); display:flex; justify-content:space-between; gap:12px; align-items:center; }
+        .community-name { font-weight:700; color:#4b164c; margin:0 0 6px 0; font-size:1.05rem; }
+        .community-desc { margin:0; color:#4b5563; font-size:0.95rem; }
+        .community-meta { margin:6px 0 0 0; color:#9ca3af; font-size:0.82rem; }
+        .actions-col { display:flex; gap:8px; align-items:center; }
+        .muted { color:#8b8f97; font-size:0.9rem; }
+        .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+        .page-title { margin:0; }
     </style>
 </head>
 <body>
@@ -134,48 +59,106 @@
 
             <div class="page-header">
                 <div>
-                    <h2 class="page-title">Mis comunidades</h2>
-                    <p class="page-subtitle">Comunidades que has creado en EventWall.</p>
+                    <h2 class="page-title">Comunidades</h2>
+                    <p class="page-subtitle">Tus comunidades y resultados de búsqueda.</p>
                 </div>
 
-                <a href="{% url 'CrearComunidad' %}" class="btn">+ Nueva comunidad</a>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <form method="get" action="{% url 'Comunidades' %}" style="display:flex; align-items:center;">
+                        <input class="search-input" type="search" name="q" value="{{ query|default:'' }}" placeholder="Buscar comunidades por nombre o descripción...">
+                        <button class="btn" type="submit" style="margin-left:8px;">Buscar</button>
+                    </form>
+
+                    <a href="{% url 'CrearComunidad' %}" class="btn" style="margin-left:8px;">+ Nueva comunidad</a>
+                </div>
             </div>
 
+            {# --- Tus comunidades (propias) --- #}
+            <h3 style="margin-top:0.5rem;">Mis comunidades</h3>
             {% if comunidades %}
-                <ul class="events-list">
-                    {% for comunidad in comunidades %}
-                        <li>
-                            <div class="community-card">
-
-                                <!-- Overlay clickable: va abajo (z-index:0) -->
-                                <a href="{% url 'comunidad_detalle' comunidad.id %}" class="card-link-overlay" aria-label="Abrir {{ comunidad.nombre }}"></a>
-
-                                <!-- Contenido de la tarjeta (por encima del overlay) -->
-                                <div class="card-content">
-                                    <div class="community-card-header">
-                                        <h3 class="community-name">{{ comunidad.nombre }}</h3>
-
-                                        <div class="card-actions">
-                                            <!-- Botón eliminar: POST seguro con confirm -->
-                                            <form action="{% url 'comunidad_eliminar' comunidad.id %}" method="post" onsubmit="return confirm('¿Eliminar la comunidad «{{ comunidad.nombre }}»? Esta acción no se puede deshacer.');">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn-small-danger">Eliminar</button>
-                                            </form>
+                <ul style="list-style:none; padding:0; margin:0;">
+                {% for comunidad in comunidades %}
+                    <li>
+                        <div class="community-card">
+                            <div style="flex:1;">
+                                <a href="{% url 'comunidad_detalle' comunidad.id %}" class="community-card-link" style="display:block;">
+                                    <div style="display:flex; align-items:center; gap:12px;">
+                                        <div>
+                                            <h4 class="community-name">{{ comunidad.nombre }}</h4>
+                                            <p class="community-desc">{{ comunidad.descripcion|truncatechars:140 }}</p>
+                                            <p class="community-meta">Creada el {{ comunidad.creada_en|date:"d/m/Y" }}</p>
                                         </div>
                                     </div>
-
-                                    <p class="community-description">{{ comunidad.descripcion }}</p>
-                                    <p class="community-meta">Creada el {{ comunidad.creada_en|date:"d/m/Y H:i" }}</p>
-                                </div>
+                                </a>
                             </div>
-                        </li>
-                    {% endfor %}
+
+                            <div class="actions-col">
+                                {% if comunidad.propietario == request.user %}
+                                    <span class="muted">Propietario</span>
+                                    <a href="{% url 'comunidad_detalle' comunidad.id %}" class="btn-secondary">Ver</a>
+                                    <a href="{% url 'comunidad_eliminar' comunidad.id %}" class="btn-danger" style="text-decoration:none; padding:6px 10px;">Eliminar</a>
+                                {% else %}
+                                    {% if comunidad.is_miembro %}
+                                        <form method="post" action="{% url 'salir_comunidad' comunidad.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn-secondary" type="submit">Salir</button>
+                                        </form>
+                                    {% else %}
+                                        <form method="post" action="{% url 'unirse_comunidad' comunidad.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn" type="submit">Unirse</button>
+                                        </form>
+                                    {% endif %}
+                                    <a href="{% url 'comunidad_detalle' comunidad.id %}" class="btn-secondary">Ver</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
                 </ul>
             {% else %}
-                <p style="margin-top:1rem; color:#52606d;">
-                    Aún no has creado comunidades.
-                    <a href="{% url 'CrearComunidad' %}">Crea la primera</a>.
-                </p>
+                <p style="margin-top:1rem; color:#52606d;">Aún no has creado comunidades. <a href="{% url 'CrearComunidad' %}">Crea la primera</a>.</p>
+            {% endif %}
+
+            {# --- Resultados de búsqueda (si hay) --- #}
+            {% if resultados %}
+                <hr style="margin:18px 0;">
+                <h3>Resultados de búsqueda</h3>
+                <ul style="list-style:none; padding:0; margin:0;">
+                {% for comunidad in resultados %}
+                    <li>
+                        <div class="community-card">
+                            <div style="flex:1;">
+                                <a href="{% url 'comunidad_detalle' comunidad.id %}" class="community-card-link" style="display:block;">
+                                    <h4 class="community-name">{{ comunidad.nombre }}</h4>
+                                    <p class="community-desc">{{ comunidad.descripcion|truncatechars:140 }}</p>
+                                    <p class="community-meta">Creada por <strong>{{ comunidad.propietario.username }}</strong> · {{ comunidad.creada_en|date:"d/m/Y" }}</p>
+                                </a>
+                            </div>
+
+                            <div class="actions-col">
+                                {% if comunidad.propietario == request.user %}
+                                    <span class="muted">Propietario</span>
+                                    <a href="{% url 'comunidad_detalle' comunidad.id %}" class="btn-secondary">Ver</a>
+                                {% else %}
+                                    {% if comunidad.is_miembro %}
+                                        <form method="post" action="{% url 'salir_comunidad' comunidad.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn-secondary" type="submit">Salir</button>
+                                        </form>
+                                    {% else %}
+                                        <form method="post" action="{% url 'unirse_comunidad' comunidad.id %}">
+                                            {% csrf_token %}
+                                            <button class="btn" type="submit">Unirse</button>
+                                        </form>
+                                    {% endif %}
+                                    <a href="{% url 'comunidad_detalle' comunidad.id %}" class="btn-secondary">Ver</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+                </ul>
             {% endif %}
 
         </section>

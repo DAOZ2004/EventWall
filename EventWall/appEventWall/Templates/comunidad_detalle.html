@@ -7,18 +7,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="icon" href="{% static 'img/EventWall.jpg' %}" type="image/x-icon">
+    <style>
+        /* Pequeños estilos adicionales para los botones en el header del detalle */
+        .detail-actions { display:flex; gap:8px; align-items:center; }
+        .small-btn { padding:6px 10px; font-size:0.9rem; border-radius:8px; text-decoration:none; }
+        .btn-ghost { background:transparent; border:1px solid #e2e8f0; color:#374151; }
+        .btn-danger { background:#ef4444; color:white; border-radius:10px; padding:8px 12px; text-decoration:none; }
+        .members-badge { font-size:0.85rem; color:#6b7280; margin-left:8px; }
+        .event-actions a { margin-left:6px; }
+    </style>
 </head>
 <body>
 <header class="header">
     <div class="header-inner">
         <div class="header-row">
             <div class="brand">
-                <div class="brand-logo"></div>
+                <img src="{% static 'img/EventWall.jpg' %}" alt="EventWall logo"
+                     style="width:40px; height:40px; border-radius:12px; margin-right:10px;">
                 <div>
                     <div class="brand-title">EventWall</div>
                     <div style="font-size:0.75rem; opacity:.8;">Gestión de eventos</div>
                 </div>
             </div>
+
             <nav class="nav">
                 <a href="{% url 'home' %}">Inicio</a>
                 <a href="{% url 'eventos_list' %}">Eventos</a>
@@ -33,44 +44,116 @@
 <main>
     <div class="main-container">
         <section class="card-panel">
-            <div class="page-header">
-                <div>
+
+            <div class="page-header" style="align-items:center; display:flex; justify-content:space-between; gap:12px;">
+                <div style="flex:1;">
                     <h2 class="page-title">{{ comunidad.nombre }}</h2>
-                    <p class="page-subtitle">
-                        {{ comunidad.descripcion|default:"Sin descripción" }}
+                    <p class="page-subtitle">{{ comunidad.descripcion|default:"Sin descripción" }}</p>
+                    <p style="margin-top:6px; color:#6b7280; font-size:0.9rem;">
+                        Creada el {{ comunidad.creada_en|date:"d/m/Y H:i" }}
+                        {% if comunidad.miembros_count %}
+                            · <span class="members-badge">{{ comunidad.miembros_count }} miembros</span>
+                        {% endif %}
                     </p>
                 </div>
-                <a href="{% url 'evento_crear_en_comunidad' comunidad.id %}" class="btn">
-                    + Nuevo evento en esta comunidad
-                </a>
+
+                <div class="detail-actions">
+                    {# Botón Ver miembros #}
+                    <a class="small-btn btn-ghost" href="{% url 'comunidad_miembros' comunidad.id %}">
+                        Ver miembros
+                    </a>
+
+                    {# Unirse / Salir (POST forms) - requiere que la vista de urls exista #}
+                    {% if is_member %}
+                        <form action="{% url 'salir_comunidad' comunidad.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="small-btn" style="background:#fff2f2; border:1px solid #fca5a5; color:#b91c1c; border-radius:8px;">
+                                Salir de la comunidad
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="{% url 'unirse_comunidad' comunidad.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="small-btn" style="background:#e6f4ff; border:1px solid #9bd0ff; color:#0369a1; border-radius:8px;">
+                                Unirse a la comunidad
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    {# Si es propietario, mostrar opciones extra (editar/eliminar) #}
+                    {% if is_owner %}
+                        {# Editar comunidad (si tienes la vista) - si no la tienes puedes eliminar este botón) #}
+                        <a class="small-btn" href="{% url 'comunidad_editar' comunidad.id %}" style="background:#f3f4f6; border-radius:8px;">Editar</a>
+
+                        <form action="{% url 'comunidad_eliminar' comunidad.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-danger" onclick="return confirm('¿Eliminar la comunidad? Esta acción no se puede deshacer.');">Eliminar comunidad</button>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
 
-            <ul class="events-list">
+            <div style="margin-top:16px; display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0;">Eventos en {{ comunidad.nombre }}</h3>
+
+                {# Mostrar crear evento sólo si el usuario es miembro o propietario #}
+                {% if is_member or is_owner %}
+                    <a href="{% url 'evento_crear_en_comunidad' comunidad.id %}" class="btn">+ Nuevo evento en esta comunidad</a>
+                {% else %}
+                    <span style="font-size:0.9rem; color:#6b7280;">Únete para poder publicar eventos</span>
+                {% endif %}
+            </div>
+
+            <ul class="events-list" style="margin-top:12px;">
                 {% for evento in eventos %}
-                    <li class="event-card">
-                        <div class="event-main">
-                            <div class="event-title">
-                                {{ evento.titulo }}
+                    <li class="event-card" style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div class="event-main" style="flex:1;">
+                            <div class="event-title" style="display:flex; gap:10px; align-items:center;">
+                                <strong>{{ evento.titulo }}</strong>
                                 <span class="badge">{{ evento.get_tipo_display }}</span>
                             </div>
-                            <div class="event-meta">
+
+                            <div class="event-meta" style="color:#6b7280; margin-top:6px;">
                                 {{ evento.fecha|date:"d/m/Y" }}
-                                · {{ evento.hora|time:"H:i" }}
-                                · {{ evento.lugar }}
+                                · {% if evento.hora %}{{ evento.hora|time:"g:i A" }}{% else %}Hora no definida{% endif %}
+                                {% if evento.lugar %}· {{ evento.lugar }}{% endif %}
                             </div>
-                            <p class="event-description">
-                                {{ evento.descripcion }}
-                            </p>
+
+                            {% if evento.descripcion %}
+                                <p class="event-description" style="margin-top:8px; color:#374151;">
+                                    {{ evento.descripcion }}
+                                </p>
+                            {% endif %}
                         </div>
-                        <div class="event-actions">
-                            <a href="{% url 'evento_editar' evento.id %}" class="btn-secondary">Editar</a>
-                            <a href="{% url 'evento_eliminar' evento.id %}" class="btn-danger">Eliminar</a>
+
+                        <div class="event-actions" style="margin-left:12px; display:flex; flex-direction:column; gap:6px;">
+                            <a href="{% url 'evento_detalle' evento.id %}" class="btn-ghost small-btn" style="text-align:center;">Ver</a>
+
+                            {# Mostrar Editar/Eliminar si eres el creador del evento o el propietario de la comunidad #}
+                            {% if is_owner or evento.creado_por == user %}
+                                <div style="display:flex; gap:6px;">
+                                    <a href="{% url 'evento_editar' evento.id %}" class="small-btn btn-ghost">Editar</a>
+
+                                    <form action="{% url 'evento_eliminar' evento.id %}" method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-danger" onclick="return confirm('¿Eliminar este evento?');">Eliminar</button>
+                                    </form>
+                                </div>
+                            {% endif %}
                         </div>
                     </li>
                 {% empty %}
-                    <p>No hay eventos en esta comunidad todavía. Crea uno con el botón de arriba.</p>
+                    <li style="padding:18px 0; color:#6b7280;">
+                        No hay eventos en esta comunidad todavía.
+                        {% if is_member or is_owner %}
+                            Crea el primero con el botón de arriba.
+                        {% else %}
+                            Únete para ver y crear eventos.
+                        {% endif %}
+                    </li>
                 {% endfor %}
             </ul>
+
         </section>
     </div>
 </main>

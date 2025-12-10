@@ -63,6 +63,12 @@ class Comunidad(models.Model):
         on_delete=models.CASCADE,
         related_name='comunidades'
     )
+    miembros = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='comunidad_miembros',
+        blank=True,
+        help_text='Usuarios que se han unido a la comunidad'
+    )
     creada_en = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -70,3 +76,6 @@ class Comunidad(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def es_miembro(self, user):
+        return (user == self.propietario) or self.miembros.filter(pk=user.pk).exists()

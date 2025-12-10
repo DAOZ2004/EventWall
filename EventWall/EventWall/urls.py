@@ -40,4 +40,24 @@ urlpatterns = [
         name="evento_crear_en_comunidad",
     ),
     path('comunidades/<int:pk>/eliminar/', views.comunidad_eliminar, name='comunidad_eliminar'),
+    
+    path(
+    "comunidades/<int:pk>/unirse/",
+    views.unirse_comunidad,
+    name="unirse_comunidad"
+     ),
+
+ path(
+    "comunidades/<int:pk>/salir/",
+    views.salir_comunidad,
+    name="salir_comunidad"
+ ),
+
+ path(
+    "comunidades/<int:pk>/miembros/",
+    views.comunidad_miembros,
+    name="comunidad_miembros"
+ ),
+
+    
 ]

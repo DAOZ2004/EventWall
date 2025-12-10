@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Miembros - {{ comunidad.nombre }}</title>
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+  <header>... (tu header) ...</header>
+
+  <main>
+    <div class="main-container">
+      <section class="card-panel">
+        <h2>Miembros de {{ comunidad.nombre }}</h2>
+        <p>{{ comunidad.descripcion }}</p>
+
+        <ul>
+          {% for user in miembros %}
+            <li>{{ user.username }} — {{ user.email }}</li>
+          {% empty %}
+            <li>No hay miembros aún.</li>
+          {% endfor %}
+        </ul>
+
+        <a href="{% url 'comunidad_detalle' comunidad.id %}">Volver</a>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

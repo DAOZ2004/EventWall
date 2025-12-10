@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.db.models import Q
 from .models import Evento
 from .models import Evento, Profile, Comunidad
 from datetime import datetime, date, time
@@ -33,7 +34,13 @@ class ComunidadForm(forms.ModelForm):
 
 # -------------- Formulario Evento ----------------
 class EventForm(forms.ModelForm):
-    # Campo fecha con placeholder / hint
+    """
+    Form para crear/editar eventos.
+    - Fecha con hint y soporta formatos DD/MM/YYYY y YYYY-MM-DD.
+    - Hora de inicio/fin con soporte AM/PM y 24h.
+    - Filtra 'comunidad' a las comunidades donde el user es propietario o miembro.
+    """
+
     fecha = forms.DateField(
         input_formats=["%d/%m/%Y", "%Y-%m-%d"],
         widget=forms.DateInput(
@@ -46,7 +53,6 @@ class EventForm(forms.ModelForm):
         required=True,
     )
 
-    # Campos de hora inicio / fin — permiten AM/PM y 24h
     hora_inicio = forms.TimeField(
         required=True,
         widget=forms.TimeInput(
@@ -73,33 +79,37 @@ class EventForm(forms.ModelForm):
 
     class Meta:
         model = Evento
-        # guardamos en el modelo los campos que existen: 'hora' lo manejamos manualmente desde hora_inicio
+        # 'hora' en el modelo será llenado con hora_inicio en save()
         fields = ["titulo", "descripcion", "fecha", "lugar", "tipo", "comunidad"]
         widgets = {
             "descripcion": forms.Textarea(attrs={"rows": 4, "placeholder": "Describe el evento..."}),
             "lugar": forms.TextInput(attrs={"placeholder": "Ej: Auditorio Principal"}),
-            # 'tipo' dejará el widget por defecto (select) que usa tus choices en el modelo
+            # 'tipo' usa el widget por defecto (select) acorde a tus choices en el modelo
         }
 
     def __init__(self, *args, **kwargs):
         """
-        Espera un keyword arg 'user' (el request.user) para filtrar las comunidades.
+        Espera kwargs.pop('user', None) para filtrar queryset de comunidades.
         """
         user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
-        # Filtrar queryset de comunidades por propietario (tu campo es 'propietario')
+        # Filtrar queryset de comunidades por propietario o miembro
         if "comunidad" in self.fields:
             if user is not None:
-                self.fields["comunidad"].queryset = Comunidad.objects.filter(propietario=user)
+                self.fields["comunidad"].queryset = Comunidad.objects.filter(
+                    Q(propietario=user) | Q(miembros=user)
+                ).distinct()
             else:
                 self.fields["comunidad"].queryset = Comunidad.objects.none()
 
-        # Si venimos con una instancia (edición) rellenamos hora_inicio con el valor existente
+        # Si editando, rellenar hora_inicio desde instance.hora (si existe)
         if self.instance and getattr(self.instance, "hora", None):
-            # instance.hora es un datetime.time
-            self.initial.setdefault("hora_inicio", self.instance.hora)
-            # si quieres intentar inferir hora_fin (no hay campo), lo dejamos vacío por defecto
+            try:
+                self.initial.setdefault("hora_inicio", self.instance.hora)
+            except Exception:
+                # si por alguna razón el valor no encaja, lo ignoramos
+                pass
 
     def clean(self):
         cleaned = super().clean()
@@ -118,27 +128,24 @@ class EventForm(forms.ModelForm):
         if h_inicio and h_fin:
             # Simple comparación de objetos time
             if h_fin <= h_inicio:
-                # Error general o en campo específico
                 self.add_error("hora_fin", "La hora de fin debe ser posterior a la hora de inicio.")
 
         return cleaned
 
     def save(self, commit=True):
         """
-        Guardamos el Evento. Como el modelo tiene sólo 'hora' (no hora_inicio/hora_fin),
-        tomamos hora_inicio como hora principal del evento (puedes ajustar esto).
+        Guardamos el Evento. Como el modelo tiene solo 'hora' (no hora_inicio/hora_fin),
+        tomamos hora_inicio como hora principal del evento.
         """
         evento = super().save(commit=False)
 
-        # Si el formulario trae hora_inicio, la asignamos al campo 'hora' del modelo.
         hora_inicio = self.cleaned_data.get("hora_inicio")
         if hora_inicio:
             evento.hora = hora_inicio
 
-        # asignar creador se hace normalmente en la vista; dejamos esto por seguridad:
-        # if not evento.creado_por and hasattr(self, 'user'):
-        #     evento.creado_por = self.user
-
+        # NOTA: asignar evento.creado_por lo hacemos desde la vista (es más seguro).
         if commit:
             evento.save()
+            # Si hubo muchos-a-muchos (no en este modelo en particular), llamar self.save_m2m()
+
         return evento
