@@ -65,9 +65,8 @@ class Comunidad(models.Model):
     )
     miembros = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        related_name='comunidad_miembros',
-        blank=True,
-        help_text='Usuarios que se han unido a la comunidad'
+        related_name='miembro_de',
+        blank=True
     )
     creada_en = models.DateTimeField(auto_now_add=True)
 
@@ -78,4 +77,9 @@ class Comunidad(models.Model):
         return self.nombre
 
     def es_miembro(self, user):
-        return (user == self.propietario) or self.miembros.filter(pk=user.pk).exists()
+        """Devuelve True si user es propietario o está en miembros"""
+        if user is None or not user.is_authenticated:
+            return False
+        if self.propietario_id == getattr(user, "id", None):
+            return True
+        return self.miembros.filter(pk=user.pk).exists()

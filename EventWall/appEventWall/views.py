@@ -69,21 +69,11 @@ def evento_detalle(request, pk):
 
 @login_required
 def evento_crear(request, comunidad_id=None):
-    """
-    Crear un evento. Si comunidad_id se pasa, intentamos crear dentro de esa comunidad.
-    Se requiere que el usuario sea propietario o miembro de la comunidad para crear en ella.
-    """
     comunidad = None
     initial = {}
-
     if comunidad_id:
         comunidad = get_object_or_404(Comunidad, id=comunidad_id)
-        # comprobar permiso: propietario o miembro
-        is_propietario = comunidad.propietario == request.user
-        is_miembro = False
-        if hasattr(comunidad, "miembros"):
-            is_miembro = comunidad.miembros.filter(pk=request.user.pk).exists()
-        if not (is_propietario or is_miembro):
+        if not comunidad.es_miembro(request.user):
             messages.error(request, "No tienes permiso para crear eventos en esta comunidad.")
             return redirect("comunidad_detalle", pk=comunidad.id)
         initial["comunidad"] = comunidad
@@ -93,15 +83,9 @@ def evento_crear(request, comunidad_id=None):
         if form.is_valid():
             evento = form.save(commit=False)
             evento.creado_por = request.user
-            # verificar seguridad: si la comunidad elegida no permite al usuario publicar
-            if evento.comunidad:
-                is_propietario = evento.comunidad.propietario == request.user
-                is_miembro = False
-                if hasattr(evento.comunidad, "miembros"):
-                    is_miembro = evento.comunidad.miembros.filter(pk=request.user.pk).exists()
-                if not (is_propietario or is_miembro):
-                    messages.error(request, "No puedes publicar en esa comunidad.")
-                    return redirect("eventos_list")
+            if evento.comunidad and not evento.comunidad.es_miembro(request.user):
+                messages.error(request, "No puedes publicar en esa comunidad.")
+                return redirect("eventos_list")
             evento.save()
             messages.success(request, "Evento guardado.")
             if evento.comunidad:
@@ -116,22 +100,19 @@ def evento_crear(request, comunidad_id=None):
 @login_required
 def evento_editar(request, pk):
     evento = get_object_or_404(Evento, pk=pk)
-    # restricción opcional: solo creador puede editar (si quieres)
-    # if evento.creado_por != request.user:
-    #     messages.error(request, "No puedes editar este evento.")
-    #     return redirect("eventos_list")
-
     if request.method == "POST":
         form = EventForm(request.POST, instance=evento, user=request.user)
         if form.is_valid():
-            form.save()
+            evento = form.save(commit=False)
+            if evento.comunidad and not evento.comunidad.es_miembro(request.user):
+                messages.error(request, "No tienes permiso para asociar este evento a esa comunidad.")
+                return redirect("eventos_list")
+            evento.save()
             messages.success(request, "Evento actualizado.")
             return redirect("eventos_list")
     else:
         form = EventForm(instance=evento, user=request.user)
-
     return render(request, "evento_form.html", {"form": form, "evento": evento})
-
 
 @login_required
 def evento_eliminar(request, pk):
@@ -149,23 +130,34 @@ def evento_eliminar(request, pk):
 def comunidades_list(request):
     q = request.GET.get("q", "").strip()
 
-    tus_comunidades = list(Comunidad.objects.filter(propietario=request.user).order_by("-creada_en"))
+    # Tus comunidades (propietario)
+    tus_comunidades_qs = Comunidad.objects.filter(propietario=request.user).order_by("-creada_en").prefetch_related("miembros")
 
-    resultados = []
+    # Resultados de búsqueda: buscar en todas las comunidades (incluye tus propias)
+    resultados_qs = Comunidad.objects.none()
     if q:
-        resultados = list(
+        resultados_qs = (
             Comunidad.objects.filter(
                 Q(nombre__icontains=q) | Q(descripcion__icontains=q)
-            ).exclude(propietario=request.user).order_by("-creada_en")
+            )
+            .order_by("-creada_en")
+            .prefetch_related("miembros")
         )
 
-    # Añadir atributo is_miembro en cada comunidad (una consulta por comunidad, pero controlada).
-    # Si tienes muchos items y preocupan las consultas, se puede optimizar con prefetch_related.
-    for c in tus_comunidades:
-        c.is_miembro = c.miembros.filter(pk=request.user.pk).exists() if hasattr(c, "miembros") else False
+    # Convertir a listas (para poder iterar 2 veces y añadir atributos)
+    tus_comunidades = list(tus_comunidades_qs)
+    resultados_list = list(resultados_qs)
 
-    for c in resultados:
-        c.is_miembro = c.miembros.filter(pk=request.user.pk).exists() if hasattr(c, "miembros") else False
+    # Evitar que las comunidades que son tuyas aparezcan en "resultados"
+    tus_ids = {c.id for c in tus_comunidades}
+    resultados = [c for c in resultados_list if c.id not in tus_ids]
+
+    # Añadimos atributo booleano para plantilla (evita llamadas complejas en template)
+    for c in tus_comunidades + resultados:
+        try:
+            c.is_miembro = c.miembros.filter(pk=request.user.pk).exists()
+        except Exception:
+            c.is_miembro = False
 
     context = {
         "comunidades": tus_comunidades,
@@ -173,7 +165,6 @@ def comunidades_list(request):
         "resultados": resultados,
     }
     return render(request, "Comunidades.html", context)
-
 
 @login_required
 def crear_comunidad_view(request):
@@ -183,7 +174,7 @@ def crear_comunidad_view(request):
             comunidad = form.save(commit=False)
             comunidad.propietario = request.user
             comunidad.save()
-            # si existe campo miembros y quieres agregar al propietario automáticamente:
+            # añadir propietario a miembros para simplificar comprobaciones
             if hasattr(comunidad, "miembros"):
                 comunidad.miembros.add(request.user)
             messages.success(request, "Comunidad creada.")
@@ -195,15 +186,9 @@ def crear_comunidad_view(request):
 
 @login_required
 def comunidad_detalle(request, pk):
-    """
-    Vista que muestra una comunidad y sus eventos.
-    Se permite ver independientemente del propietario (si quieres restringir, modifica aquí).
-    """
     comunidad = get_object_or_404(Comunidad, pk=pk)
     eventos = comunidad.eventos.order_by("fecha", "hora")
-    es_miembro = False
-    if hasattr(comunidad, "miembros"):
-        es_miembro = comunidad.miembros.filter(pk=request.user.pk).exists()
+    es_miembro = comunidad.es_miembro(request.user)
     return render(request, "comunidad_detalle.html", {"comunidad": comunidad, "eventos": eventos, "es_miembro": es_miembro})
 
 
