@@ -73,28 +73,41 @@ def evento_crear(request, comunidad_id=None):
     initial = {}
     if comunidad_id:
         comunidad = get_object_or_404(Comunidad, id=comunidad_id)
-        if not comunidad.es_miembro(request.user):
+        # permiso: solo propietario o miembro
+        is_propietario = comunidad.propietario == request.user
+        is_miembro = comunidad.miembros.filter(pk=request.user.pk).exists() if hasattr(comunidad, "miembros") else False
+        if not (is_propietario or is_miembro):
             messages.error(request, "No tienes permiso para crear eventos en esta comunidad.")
-            return redirect("comunidad_detalle", pk=comunidad.id)
-        initial["comunidad"] = comunidad
+            return redirect('comunidad_detalle', pk=comunidad.id)
+        initial['comunidad'] = comunidad
 
-    if request.method == "POST":
+    if request.method == 'POST':
+        # pasar user para que el formulario filtre comunidades (si el form lo hace)
         form = EventForm(request.POST, user=request.user)
         if form.is_valid():
             evento = form.save(commit=False)
+
+            # SI venimos desde la URL con comunidad_id, forzamos la comunidad
+            if comunidad is not None:
+                evento.comunidad = comunidad
+
             evento.creado_por = request.user
-            if evento.comunidad and not evento.comunidad.es_miembro(request.user):
-                messages.error(request, "No puedes publicar en esa comunidad.")
-                return redirect("eventos_list")
+
+            # seguridad: si por alguna razón comunidad está asignada en el form, comprobamos permisos
+            if evento.comunidad:
+                is_propietario = evento.comunidad.propietario == request.user
+                is_miembro = evento.comunidad.miembros.filter(pk=request.user.pk).exists() if hasattr(evento.comunidad, "miembros") else False
+                if not (is_propietario or is_miembro):
+                    messages.error(request, "No puedes publicar en esa comunidad.")
+                    return redirect('eventos_list')
+
             evento.save()
             messages.success(request, "Evento guardado.")
-            if evento.comunidad:
-                return redirect("comunidad_detalle", pk=evento.comunidad.id)
-            return redirect("eventos_list")
+            return redirect('comunidad_detalle', pk=evento.comunidad.id) if evento.comunidad else redirect('eventos_list')
     else:
         form = EventForm(initial=initial, user=request.user)
 
-    return render(request, "evento_form.html", {"form": form, "comunidad": comunidad})
+    return render(request, 'evento_form.html', {'form': form, 'comunidad': comunidad})
 
 
 @login_required
