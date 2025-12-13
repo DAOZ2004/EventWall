@@ -38,3 +38,5 @@ Permite a los usuarios crear comunidades, unirse a ellas, publicar eventos, admi
 **-SQLite / MySQL (según configuración)**
 
 **-Sistema de mensajes y autenticación de Django**
+
+# Consultar el archivo de requerimientos para instalar las librerias necesarias
